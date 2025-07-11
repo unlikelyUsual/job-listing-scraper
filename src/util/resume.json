@@ -1,0 +1,39 @@
+{
+  "candidate": {
+    "name": "Prabhat Kumar",
+    "email": "kumarprabhat308@gmail.com",
+    "phone": "+918285629809",
+    "portfolio": "https://prabhatkumar.dev",
+    "location": ["Remote", "Bangalore"],
+    "experience_years": 5,
+    "roles": [
+      "Full Stack Developer",
+      "Backend Developer",
+      "Frontend Developer",
+      "Software Engineer",
+      "SDE II"
+    ],
+    "tech_stack": [
+      "Node.js",
+      "React",
+      "TypeScript",
+      "JavaScript",
+      "PostgreSQL",
+      "MongoDB",
+      "Firebase",
+      "AWS",
+      "GCP",
+      "Python",
+      "Java",
+      "Spring Boot",
+      "GraphQL",
+      "Redis",
+      "Serverless"
+    ],
+    "resume_links": {
+      "pdf": "Latest Resume.pdf",
+      "linkedin": "https://www.linkedin.com/in/prabhat-kumar-b3283012b/",
+      "github": "https://github.com/unlikelyUsual"
+    }
+  }
+}
