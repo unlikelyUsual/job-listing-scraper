@@ -14,17 +14,16 @@ export interface DatabaseConfig {
 export const dbConfig: DatabaseConfig = {
   host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT || "5432"),
-  database: process.env.DB_NAME || "job_scraper",
-  user: process.env.DB_USER || "scraper_user",
-  password: process.env.DB_PASSWORD || "scraper_password",
+  database: process.env.DB_NAME || "scraper",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "root",
 };
 
-// Connection pool for better performance
 export const pool = new Pool({
   ...dbConfig,
   max: 10,
-  idleTimeoutMillis: 30 * 1000,
-  connectionTimeoutMillis: 2 * 1000,
+  idleTimeoutMillis: 30 * 1000, // 30 Seconds
+  connectionTimeoutMillis: 2 * 1000, // 2 Seconds
 });
 
 // Test database connection

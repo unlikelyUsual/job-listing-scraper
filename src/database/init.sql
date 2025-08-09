@@ -1,6 +1,5 @@
--- Create database schema for job scraper
 
--- Job listings table
+-- Listing Table
 CREATE TABLE IF NOT EXISTS job_listings (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -21,7 +20,7 @@ CREATE TABLE IF NOT EXISTS job_listings (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Scraping sessions table
+-- Scraping Table
 CREATE TABLE IF NOT EXISTS scraping_sessions (
     id SERIAL PRIMARY KEY,
     session_date DATE NOT NULL,
@@ -34,7 +33,7 @@ CREATE TABLE IF NOT EXISTS scraping_sessions (
     error_message TEXT
 );
 
--- Preferred job sites configuration
+-- Sites Table
 CREATE TABLE IF NOT EXISTS preferred_sites (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -44,7 +43,7 @@ CREATE TABLE IF NOT EXISTS preferred_sites (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Search queries log
+-- Search Table
 CREATE TABLE IF NOT EXISTS search_queries (
     id SERIAL PRIMARY KEY,
     query TEXT NOT NULL,
@@ -54,7 +53,7 @@ CREATE TABLE IF NOT EXISTS search_queries (
     executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create indexes for better performance
+-- Index
 CREATE INDEX IF NOT EXISTS idx_job_listings_session_id ON job_listings(session_id);
 CREATE INDEX IF NOT EXISTS idx_job_listings_score ON job_listings(score DESC);
 CREATE INDEX IF NOT EXISTS idx_job_listings_scraped_at ON job_listings(scraped_at DESC);

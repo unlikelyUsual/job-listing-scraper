@@ -5,9 +5,9 @@ services:
     image: postgres:15-alpine
     container_name: job_scraper_db
     environment:
-      POSTGRES_DB: job_scraper
-      POSTGRES_USER: scraper_user
-      POSTGRES_PASSWORD: scraper_password
+      POSTGRES_DB: scraper
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
     ports:
       - "5432:5432"
     volumes:
@@ -29,9 +29,9 @@ services:
       - NODE_ENV=production
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=job_scraper
-      - DB_USER=scraper_user
-      - DB_PASSWORD=scraper_password
+      - DB_NAME=scraper
+      - DB_USER=root
+      - DB_PASSWORD=root
     volumes:
       - ./logs:/app/logs
       - ./screenshots:/app/screenshots
