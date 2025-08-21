@@ -2,13 +2,24 @@ import { readFile } from "fs/promises";
 import { closeDatabase } from "./config/database.js";
 import type { ResumeData } from "./database/models.js";
 import {
-  JobScrapingAutomation,
   dailyJobDiscovery,
+  JobScrapingAutomation,
 } from "./scraper/automation.js";
 import { createJobScheduler } from "./services/scheduler.js";
 import Logger from "./util/Logger.js";
 
 const logger = new Logger();
+
+async function test() {
+  const resumeJson = await readFile("src/util/resume.json", "utf-8");
+  const resumeData: ResumeData = JSON.parse(resumeJson);
+
+  logger.debug(`👤 Loaded profile for: `, resumeData.candidate.name);
+
+  // Create automation instance
+  const automation = new JobScrapingAutomation(resumeData);
+  await automation.initialize();
+}
 
 async function main() {
   logger.debug("🚀 Starting Job Listing Scraper...");
@@ -18,10 +29,7 @@ async function main() {
     const resumeJson = await readFile("src/util/resume.json", "utf-8");
     const resumeData: ResumeData = JSON.parse(resumeJson);
 
-    logger.debug(`👤 Loaded profile for: ${resumeData.candidate.name}`);
-    logger.debug(
-      `🎯 Searching for roles: ${resumeData.candidate.roles.join(", ")}`
-    );
+    logger.debug(`👤 Loaded profile for: `, resumeData.candidate.name);
 
     // Create automation instance
     const automation = new JobScrapingAutomation(resumeData);
@@ -177,7 +185,7 @@ process.on("unhandledRejection", async (reason, promise) => {
 });
 
 // Start the application
-main().catch(async (error) => {
+test().catch(async (error) => {
   logger.error("💥 Fatal error:", error);
   await closeDatabase();
   process.exit(1);
