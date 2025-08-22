@@ -14,7 +14,7 @@ async function test() {
   const resumeJson = await readFile("src/util/resume.json", "utf-8");
   const resumeData: ResumeData = JSON.parse(resumeJson);
 
-  logger.debug(`👤 Loaded profile for: `, resumeData.candidate.name);
+  logger.debug(`👤 Loaded profile for: `, resumeData);
 
   // Create automation instance
   const automation = new JobScrapingAutomation(resumeData);
@@ -29,7 +29,7 @@ async function main() {
     const resumeJson = await readFile("src/util/resume.json", "utf-8");
     const resumeData: ResumeData = JSON.parse(resumeJson);
 
-    logger.debug(`👤 Loaded profile for: `, resumeData.candidate.name);
+    logger.debug(`👤 Loaded profile for: `, resumeData.data.name);
 
     // Create automation instance
     const automation = new JobScrapingAutomation(resumeData);

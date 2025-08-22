@@ -50,7 +50,7 @@ export class JobScrapingAutomation {
     // Create new scraping session
     const sessionId = await jobRepository.createSession({
       session_date: new Date(),
-      search_queries: this.resumeData.candidate.roles,
+      search_queries: this.resumeData.data.roles,
       status: "running",
     });
 

@@ -49,7 +49,7 @@ export interface SearchQuery {
 }
 
 export interface ResumeData {
-  candidate: {
+  data: {
     name: string;
     email: string;
     phone: string;
