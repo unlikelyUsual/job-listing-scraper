@@ -35,7 +35,7 @@ export class PlaywrightManager {
 
   async initialize(): Promise<void> {
     try {
-      logger.debug("🚀 Initializing Playwright browser...");
+      logger.debug("Initializing Playwright browser...");
       this.browser = await chromium.launch({
         headless: this.config.headless,
         args: [
@@ -48,9 +48,9 @@ export class PlaywrightManager {
           "--disable-gpu",
         ],
       });
-      logger.debug("✅ Playwright browser initialized");
+      logger.debug("Playwright browser initialized");
     } catch (error) {
-      logger.error("❌ Failed to initialize Playwright browser:", error);
+      logger.error("Failed to initialize Playwright browser:", error);
       throw error;
     }
   }
@@ -102,11 +102,11 @@ export class PlaywrightManager {
 
       this.contexts.push(context);
       logger.debug(
-        `📄 Created new browser context (${this.contexts.length}/${this.config.maxConcurrency})`
+        `Created new browser context (${this.contexts.length}/${this.config.maxConcurrency})`
       );
       return context;
     } catch (error) {
-      logger.error("❌ Failed to create browser context:", error);
+      logger.error("Failed to create browser context:", error);
       throw error;
     }
   }
@@ -124,18 +124,18 @@ export class PlaywrightManager {
       // Handle console logs
       page.on("console", (msg) => {
         if (msg.type() === "error") {
-          logger.debug(`🌐 Browser console error: ${msg.text()}`);
+          logger.debug(`Browser console error: ${msg.text()}`);
         }
       });
 
       // Handle page errors
       page.on("pageerror", (error) => {
-        logger.debug(`🌐 Page error: ${error.message}`);
+        logger.debug(`Page error: ${error.message}`);
       });
 
       return page;
     } catch (error) {
-      logger.error("❌ Failed to create page:", error);
+      logger.error("Failed to create page:", error);
       throw error;
     }
   }
@@ -150,12 +150,12 @@ export class PlaywrightManager {
       });
       logger.debug(`📸 Screenshot saved: ${filename}`);
     } catch (error) {
-      logger.error("❌ Failed to take screenshot:", error);
+      logger.error("Failed to take screenshot:", error);
     }
   }
 
   async handleError(page: Page, error: Error, context: string): Promise<void> {
-    logger.error(`❌ Error in ${context}:`, error);
+    logger.error(`Error in ${context}:`, error);
 
     if (this.config.screenshotOnError) {
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -171,7 +171,7 @@ export class PlaywrightManager {
         `🔒 Closed browser context (${this.contexts.length} remaining)`
       );
     } catch (error) {
-      logger.error("❌ Failed to close context:", error);
+      logger.error("Failed to close context:", error);
     }
   }
 
@@ -187,9 +187,9 @@ export class PlaywrightManager {
         this.browser = null;
       }
 
-      logger.debug("🔒 All browser resources closed");
+      logger.debug("All browser resources closed");
     } catch (error) {
-      logger.error("❌ Failed to close browser resources:", error);
+      logger.error("Failed to close browser resources:", error);
     }
   }
 
@@ -205,7 +205,7 @@ export class PlaywrightManager {
       });
       return true;
     } catch (error) {
-      logger.debug(`⏰ Selector not found: ${selector}`);
+      logger.debug(`Selector not found: ${selector}`);
       return false;
     }
   }
@@ -219,7 +219,7 @@ export class PlaywrightManager {
       }
       return false;
     } catch (error) {
-      logger.debug(`🖱️ Failed to click: ${selector}`);
+      logger.debug(`Failed to click: ${selector}`);
       return false;
     }
   }
@@ -257,7 +257,7 @@ export class PlaywrightManager {
         });
       });
     } catch (error) {
-      logger.debug("📜 Failed to scroll to bottom");
+      logger.debug("Failed to scroll to bottom");
     }
   }
 }

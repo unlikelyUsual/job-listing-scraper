@@ -32,10 +32,10 @@ export async function testConnection(): Promise<boolean> {
     const client = await pool.connect();
     await client.query("SELECT NOW()");
     client.release();
-    console.log("✅ Database connection successful");
+    console.log("Database connection successful");
     return true;
   } catch (error) {
-    console.error("❌ Database connection failed:", error);
+    console.error("Database connection failed:", error);
     return false;
   }
 }
@@ -52,14 +52,14 @@ export async function initializeDatabase(): Promise<void> {
     `);
 
     if (result.rows.length === 0) {
-      console.log("📊 Initializing database tables...");
+      console.log("Initializing database tables...");
       // Tables will be created by init.sql in Docker
-      console.log("✅ Database initialization complete");
+      console.log("Database initialization complete");
     } else {
-      console.log("✅ Database tables already exist");
+      console.log("Database tables already exist");
     }
   } catch (error) {
-    console.error("❌ Database initialization failed:", error);
+    console.error("Database initialization failed:", error);
     throw error;
   } finally {
     client.release();

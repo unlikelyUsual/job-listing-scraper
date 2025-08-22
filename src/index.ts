@@ -29,7 +29,7 @@ async function main() {
     const resumeJson = await readFile("src/util/resume.json", "utf-8");
     const resumeData: ResumeData = JSON.parse(resumeJson);
 
-    logger.debug(`👤 Loaded profile for: `, resumeData.data.name);
+    logger.debug(`Loaded profile for: `, resumeData.data.name);
 
     // Create automation instance
     const automation = new JobScrapingAutomation(resumeData);
@@ -41,16 +41,16 @@ async function main() {
     switch (command) {
       case "run":
         // Run immediately
-        logger.debug("🔧 Running job scraping immediately...");
+        logger.debug("Running job scraping immediately...");
         await automation.initialize();
         const results = await automation.executeFullScrapingCycle();
-        logger.debug("📊 Scraping results:", results);
+        logger.debug("Scraping results:", results);
         await automation.cleanup();
         break;
 
       case "schedule":
         // Start scheduler only
-        logger.debug("📅 Starting scheduler mode...");
+        logger.debug("Starting scheduler mode...");
         const scheduler = createJobScheduler(async () => {
           const automation = new JobScrapingAutomation(resumeData);
           await automation.initialize();
@@ -127,7 +127,7 @@ async function main() {
 
       default:
         // Default: run with scheduler
-        logger.debug("🔄 Starting default mode (run once + scheduler)...");
+        logger.debug("Starting default mode (run once + scheduler)...");
 
         // Run once immediately
         await automation.initialize();
@@ -165,7 +165,7 @@ async function main() {
         break;
     }
   } catch (error) {
-    logger.error("❌ Application failed:", error);
+    logger.error("Application failed:", error);
     await closeDatabase();
     process.exit(1);
   }
@@ -173,13 +173,13 @@ async function main() {
 
 // Handle uncaught exceptions
 process.on("uncaughtException", async (error) => {
-  logger.error("💥 Uncaught Exception:", error);
+  logger.error("Uncaught Exception:", error);
   await closeDatabase();
   process.exit(1);
 });
 
 process.on("unhandledRejection", async (reason, promise) => {
-  logger.error("💥 Unhandled Rejection at:", promise, "reason:", reason);
+  logger.error("Unhandled Rejection at:", promise, "reason:", reason);
   await closeDatabase();
   process.exit(1);
 });

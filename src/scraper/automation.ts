@@ -22,18 +22,14 @@ export class JobScrapingAutomation {
   }
 
   async initialize(): Promise<void> {
-    logger.debug("🚀 Initializing job scraping automation...");
-
-    // Test database connection
     const dbConnected = await testConnection();
+
     if (!dbConnected) {
       throw new Error("Failed to connect to database");
     }
 
-    // Initialize database tables
     await initializeDatabase();
 
-    // Initialize Playwright
     await playwrightManager.initialize();
 
     logger.debug("✅ Job scraping automation initialized");
@@ -45,7 +41,7 @@ export class JobScrapingAutomation {
     topJobsSelected: number;
     averageScore: number;
   }> {
-    logger.debug("🎯 Starting full job scraping cycle...");
+    logger.debug("Starting full job scraping cycle...");
 
     // Create new scraping session
     const sessionId = await jobRepository.createSession({
@@ -55,16 +51,13 @@ export class JobScrapingAutomation {
     });
 
     try {
-      // Step 1: Search for jobs using Google
-      logger.debug("🔍 Step 1: Searching for jobs on Google...");
+      logger.debug("Searching for jobs on Google...");
       const searchResults = await googleJobSearcher.searchAllRoles(
         this.resumeData,
         ["linkedin.com", "indeed.com", "ycombinator.com"]
       );
 
-      logger.debug(
-        `📊 Found ${searchResults.length} job URLs from Google search`
-      );
+      logger.debug(`Found ${searchResults.length} job URLs from Google search`);
 
       // Step 2: Scrape detailed job information
       logger.debug("📄 Step 2: Scraping detailed job information...");

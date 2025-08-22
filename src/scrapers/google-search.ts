@@ -54,7 +54,7 @@ export class GoogleJobSearcher {
             // Add delay between searches to avoid rate limiting
             await page.waitForTimeout(2000);
           } catch (error) {
-            logger.error(`❌ Failed to search ${site} for ${role}:`, error);
+            logger.error(`Failed to search ${site} for ${role}:`, error);
             await playwrightManager.handleError(
               page,
               error as Error,
@@ -67,7 +67,7 @@ export class GoogleJobSearcher {
       await playwrightManager.closeContext(context);
       return results;
     } catch (error) {
-      logger.error("❌ Google search failed:", error);
+      logger.error("Google search failed:", error);
       throw error;
     }
   }
@@ -78,7 +78,7 @@ export class GoogleJobSearcher {
     site?: string
   ): Promise<GoogleSearchResult[]> {
     const query = await this.buildSearchQuery(role, site);
-    logger.debug(`🔍 Searching Google: ${query}`);
+    logger.debug(`Searching Google: ${query}`);
 
     try {
       // Navigate to Google
@@ -100,13 +100,13 @@ export class GoogleJobSearcher {
       const results = await this.extractSearchResults(page, site);
 
       logger.debug(
-        `✅ Found ${results.length} results for "${role}" ${
+        `Found ${results.length} results for "${role}" ${
           site ? `on ${site}` : ""
         }`
       );
       return results;
     } catch (error) {
-      logger.error(`❌ Search failed for query: ${query}`, error);
+      logger.error(`Search failed for query: ${query}`, error);
       throw error;
     }
   }
@@ -124,14 +124,14 @@ export class GoogleJobSearcher {
 
       for (const selector of consentSelectors) {
         if (await playwrightManager.safeClick(page, selector)) {
-          logger.debug("🍪 Handled cookie consent");
+          logger.debug("Handled cookie consent");
           await page.waitForTimeout(1000);
           break;
         }
       }
     } catch (error) {
       // Cookie consent handling is optional
-      logger.debug("🍪 No cookie consent found or failed to handle");
+      logger.debug("No cookie consent found or failed to handle");
     }
   }
 
@@ -215,7 +215,7 @@ export class GoogleJobSearcher {
 
       return uniqueResults.slice(0, 20); // Limit to top 20 results
     } catch (error) {
-      logger.error("❌ Failed to extract search results:", error);
+      logger.error("Failed to extract search results:", error);
       return [];
     }
   }
@@ -225,10 +225,10 @@ export class GoogleJobSearcher {
     preferredSites: string[] = []
   ): Promise<GoogleSearchResult[]> {
     const allResults: GoogleSearchResult[] = [];
-    const roles = resumeData.candidate.roles;
+    const roles = resumeData.data.roles;
 
     logger.debug(
-      `🎯 Searching for ${roles.length} roles across ${
+      `Searching for ${roles.length} roles across ${
         preferredSites.length || "all"
       } sites`
     );
@@ -241,7 +241,7 @@ export class GoogleJobSearcher {
         // Add delay between role searches
         await new Promise((resolve) => setTimeout(resolve, 3000));
       } catch (error) {
-        logger.error(`❌ Failed to search for role: ${role}`, error);
+        logger.error(`Failed to search for role: ${role}`, error);
       }
     }
 
