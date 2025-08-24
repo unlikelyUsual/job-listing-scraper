@@ -32,7 +32,7 @@ export class JobScrapingAutomation {
 
     await playwrightManager.initialize();
 
-    logger.debug("✅ Job scraping automation initialized");
+    logger.debug("Job scraping automation initialized");
   }
 
   async executeFullScrapingCycle(): Promise<{
@@ -60,7 +60,7 @@ export class JobScrapingAutomation {
       logger.debug(`Found ${searchResults.length} job URLs from Google search`);
 
       // Step 2: Scrape detailed job information
-      logger.debug("📄 Step 2: Scraping detailed job information...");
+      logger.debug("Scraping detailed job information...");
       const jobDetails = [];
 
       for (const searchResult of searchResults.slice(0, 50)) {
@@ -81,14 +81,14 @@ export class JobScrapingAutomation {
           // Add delay between requests to be respectful
           await new Promise((resolve) => setTimeout(resolve, 2000));
         } catch (error) {
-          logger.error(`❌ Failed to scrape job: ${searchResult.url}`, error);
+          logger.error(`Failed to scrape job: ${searchResult.url}`, error);
         }
       }
 
-      logger.debug(`✅ Successfully scraped ${jobDetails.length} job details`);
+      logger.debug(`Successfully scraped ${jobDetails.length} job details`);
 
       // Step 3: Score and rank jobs
-      logger.debug("🎯 Step 3: Scoring and ranking jobs...");
+      logger.debug("Scoring and ranking jobs...");
       const scoredJobs = this.jobMatcher.scoreMultipleJobs(jobDetails);
       const topJobs = this.jobMatcher.selectTopJobs(
         scoredJobs,
@@ -96,7 +96,7 @@ export class JobScrapingAutomation {
       );
 
       // Step 4: Save jobs to database
-      logger.debug("💾 Step 4: Saving jobs to database...");
+      logger.debug("Saving jobs to database...");
       const jobListings = this.jobMatcher.convertMultipleToJobListings(
         scoredJobs,
         sessionId
@@ -130,12 +130,12 @@ export class JobScrapingAutomation {
       // Generate report
       const report = this.jobMatcher.generateJobReport(scoredJobs);
 
-      logger.debug("📊 Scraping cycle completed successfully!");
+      logger.debug("Scraping cycle completed successfully!");
       logger.debug(
-        `📈 Results: ${report.totalJobs} jobs found, ${topJobs.length} top picks selected`
+        `Results: ${report.totalJobs} jobs found, ${topJobs.length} top picks selected`
       );
       logger.debug(
-        `⭐ Average score: ${(report.averageScore * 100).toFixed(1)}%`
+        `Average score: ${(report.averageScore * 100).toFixed(1)}%`
       );
 
       return {
@@ -145,7 +145,7 @@ export class JobScrapingAutomation {
         averageScore: report.averageScore,
       };
     } catch (error) {
-      logger.error("❌ Scraping cycle failed:", error);
+      logger.error("Scraping cycle failed:", error);
 
       // Update session with error
       await jobRepository.updateSession(sessionId, {
@@ -159,9 +159,9 @@ export class JobScrapingAutomation {
   }
 
   async cleanup(): Promise<void> {
-    logger.debug("🧹 Cleaning up resources...");
+    logger.debug("Cleaning up resources...");
     await playwrightManager.closeAll();
-    logger.debug("✅ Cleanup completed");
+    logger.debug("Cleanup completed");
   }
 
   // Get recent scraping results
@@ -195,12 +195,12 @@ export async function dailyJobDiscovery(): Promise<void> {
     await automation.initialize();
     const results = await automation.executeFullScrapingCycle();
 
-    logger.debug("🎉 Daily job discovery completed:", results);
+    logger.debug("Daily job discovery completed:", results);
 
     // Cleanup
     await automation.cleanup();
   } catch (error) {
-    logger.error("❌ Daily job discovery failed:", error);
+    logger.error("Daily job discovery failed:", error);
     throw error;
   }
 }
