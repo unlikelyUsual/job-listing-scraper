@@ -113,9 +113,7 @@ export class JobParser {
       });
 
       if (!jobDetails.title || !jobDetails.company) {
-        logger.debug(
-          "❌ Could not extract essential job details (title/company)"
-        );
+        logger.debug("Could not extract essential job details (title/company)");
         return null;
       }
 
@@ -138,18 +136,18 @@ export class JobParser {
       };
 
       logger.debug(
-        `✅ Successfully parsed job: ${result.title} at ${result.company}`
+        `Successfully parsed job: ${result.title} at ${result.company}`
       );
       return result;
     } catch (error) {
-      logger.error("❌ Failed to extract job details:", error);
+      logger.error("Failed to extract job details:", error);
       return null;
     }
   }
 
   private extractTechStack(text: string): string[] {
     const allTechStack = [
-      ...this.resumeData.candidate.tech_stack,
+      ...this.resumeData.data.tech_stack,
       // Additional common technologies
       "JavaScript",
       "HTML",
@@ -300,7 +298,7 @@ export class JobParser {
   private calculateTechStackScore(jobTechStack: string[]): number {
     if (jobTechStack.length === 0) return 0;
 
-    const userTechStack = this.resumeData.candidate.tech_stack;
+    const userTechStack = this.resumeData.data.tech_stack;
     const matches = jobTechStack.filter((tech) =>
       userTechStack.some(
         (userTech) => userTech.toLowerCase() === tech.toLowerCase()
@@ -314,7 +312,7 @@ export class JobParser {
   }
 
   private calculateTitleScore(title: string): number {
-    const userRoles = this.resumeData.candidate.roles;
+    const userRoles = this.resumeData.data.roles;
     const titleLower = title.toLowerCase();
 
     for (const role of userRoles) {
@@ -338,7 +336,7 @@ export class JobParser {
   }
 
   private calculateLocationScore(location: string): number {
-    const userLocations = this.resumeData.candidate.location;
+    const userLocations = this.resumeData.data.location;
     const locationLower = location.toLowerCase();
 
     for (const userLocation of userLocations) {
