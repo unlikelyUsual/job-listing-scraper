@@ -8,21 +8,29 @@ import {
 import { createJobScheduler } from "./services/scheduler.js";
 import Logger from "./util/Logger.js";
 
-const logger = new Logger();
+const logger = new Logger(); 
 
 async function test() {
   const resumeJson = await readFile("src/util/resume.json", "utf-8");
+
   const resumeData: ResumeData = JSON.parse(resumeJson);
 
-  logger.debug(`👤 Loaded profile for: `, resumeData);
+  logger.debug(`Loaded profile for: `, resumeData);
 
   // Create automation instance
   const automation = new JobScrapingAutomation(resumeData);
   await automation.initialize();
+
+  const initialResults = await automation.executeFullScrapingCycle();
+
+  logger.debug("Initial scraping results:", initialResults);
+
+  await automation.cleanup();
+
 }
 
 async function main() {
-  logger.debug("🚀 Starting Job Listing Scraper...");
+  logger.debug("Starting Job Listing Scraper...");
 
   try {
     // Load resume data
@@ -59,11 +67,11 @@ async function main() {
         });
 
         scheduler.start();
-        logger.debug("✅ Scheduler started. Press Ctrl+C to stop.");
+        logger.debug("Scheduler started. Press Ctrl+C to stop.");
 
         // Keep the process running
         process.on("SIGINT", async () => {
-          logger.debug("🛑 Shutting down gracefully...");
+          logger.debug("Shutting down gracefully...");
           scheduler.stop();
           await closeDatabase();
           process.exit(0);
@@ -81,7 +89,7 @@ async function main() {
         await automation.initialize();
         const recentResults = await automation.getRecentResults();
 
-        console.log("\n📈 Recent Scraping Sessions:");
+        console.log("\nRecent Scraping Sessions:");
         recentResults.sessions.forEach((session, index) => {
           console.log(
             `${index + 1}. ${session.session_date} - ${session.status}`
@@ -93,7 +101,7 @@ async function main() {
           );
         });
 
-        console.log("\n🏆 Recent Top Jobs:");
+        console.log("\nRecent Top Jobs:");
         recentResults.topJobs.slice(0, 10).forEach((job, index) => {
           console.log(
             `${index + 1}. ${job.title} at ${job.company} (Score: ${(
@@ -108,20 +116,20 @@ async function main() {
 
       case "test":
         // Test mode - run with limited scope
-        logger.debug("🧪 Running in test mode...");
+        logger.debug("Running in test mode...");
         process.env.HEADLESS_MODE = "false"; // Show browser for testing
         await automation.initialize();
 
         // Override to search fewer jobs for testing
         const originalMethod = automation.executeFullScrapingCycle;
         automation.executeFullScrapingCycle = async function () {
-          logger.debug("🧪 Test mode: Limited scraping");
+          logger.debug("Test mode: Limited scraping");
           // You could add test-specific logic here
           return originalMethod.call(this);
         };
 
         const testResults = await automation.executeFullScrapingCycle();
-        logger.debug("🧪 Test results:", testResults);
+        logger.debug("Test results:", testResults);
         await automation.cleanup();
         break;
 
@@ -132,27 +140,31 @@ async function main() {
         // Run once immediately
         await automation.initialize();
         const initialResults = await automation.executeFullScrapingCycle();
-        logger.debug("📊 Initial scraping results:", initialResults);
+
+        logger.debug("Initial scraping results:", initialResults);
         await automation.cleanup();
 
         // Then start scheduler for future runs
         const defaultScheduler = createJobScheduler(dailyJobDiscovery);
+
         defaultScheduler.start();
 
         logger.debug(
-          "✅ Initial run completed. Scheduler started for future runs."
+          "Initial run completed. Scheduler started for future runs."
         );
+
         logger.debug(
-          "💡 Use 'bun run src/index.ts schedule' to run scheduler only"
+          "Use 'bun run src/index.ts schedule' to run scheduler only"
         );
-        logger.debug("💡 Use 'bun run src/index.ts run' to run immediately");
+        logger.debug("Use 'bun run src/index.ts run' to run immediately");
+
         logger.debug(
-          "💡 Use 'bun run src/index.ts status' to see recent results"
+          "Use 'bun run src/index.ts status' to see recent results"
         );
 
         // Graceful shutdown
         process.on("SIGINT", async () => {
-          logger.debug("🛑 Shutting down gracefully...");
+          logger.debug("Shutting down gracefully...");
           defaultScheduler.stop();
           await closeDatabase();
           process.exit(0);
@@ -161,7 +173,7 @@ async function main() {
         // Keep alive
         setInterval(() => {
           // Just keep the process running
-        }, 60000);
+        }, 60_000);
         break;
     }
   } catch (error) {
@@ -186,7 +198,7 @@ process.on("unhandledRejection", async (reason, promise) => {
 
 // Start the application
 test().catch(async (error) => {
-  logger.error("💥 Fatal error:", error);
+  logger.error("Fatal error:", error);
   await closeDatabase();
   process.exit(1);
 });

@@ -29,26 +29,26 @@ export class JobScrapingScheduler {
 
   start(): void {
     if (!this.config.enabled) {
-      logger.debug("📅 Scheduler is disabled");
+      logger.debug("Scheduler is disabled");
       return;
     }
 
     // Calculate cron expression for every N days at 9 AM
     const cronExpression = this.calculateCronExpression();
 
-    logger.debug(`📅 Starting scheduler with expression: ${cronExpression}`);
+    logger.debug(`Starting scheduler with expression: ${cronExpression}`);
     logger.debug(
-      `⏰ Next run will be every ${this.config.intervalDays} days at 9:00 AM`
+      `Next run will be every ${this.config.intervalDays} days at 9:00 AM`
     );
 
     this.task = cron.schedule(
       cronExpression,
       async () => {
         try {
-          logger.debug("🚀 Scheduled job scraping triggered");
+          logger.debug("Scheduled job scraping triggered");
           await this.executeScrapingJob();
         } catch (error) {
-          logger.error("❌ Scheduled scraping failed:", error);
+          logger.error("Scheduled scraping failed:", error);
         }
       },
       {
@@ -57,14 +57,14 @@ export class JobScrapingScheduler {
       }
     );
 
-    logger.debug("✅ Job scraping scheduler started");
+    logger.debug("Job scraping scheduler started");
   }
 
   stop(): void {
     if (this.task) {
       this.task.stop();
       this.task = null;
-      logger.debug("🛑 Job scraping scheduler stopped");
+      logger.debug("Job scraping scheduler stopped");
     }
   }
 
@@ -124,7 +124,7 @@ export class JobScrapingScheduler {
     try {
       await this.executeScrapingJob();
     } catch (error) {
-      logger.error("❌ Manual scraping failed:", error);
+      logger.error("Manual scraping failed:", error);
       throw error;
     }
   }

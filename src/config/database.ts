@@ -1,7 +1,11 @@
 import dotenv from "dotenv";
 import { Pool } from "pg";
+import Logger from "../util/Logger.js";
+import path from "path";
+import fs from "fs";
 
 dotenv.config();
+const logger = new Logger();
 
 export interface DatabaseConfig {
   host: string;
@@ -32,10 +36,10 @@ export async function testConnection(): Promise<boolean> {
     const client = await pool.connect();
     await client.query("SELECT NOW()");
     client.release();
-    console.log("Database connection successful");
+    logger.debug("Database connection successful");
     return true;
   } catch (error) {
-    console.error("Database connection failed:", error);
+    logger.error("Database connection failed:", error);
     return false;
   }
 }
@@ -52,14 +56,16 @@ export async function initializeDatabase(): Promise<void> {
     `);
 
     if (result.rows.length === 0) {
-      console.log("Initializing database tables...");
-      // Tables will be created by init.sql in Docker
-      console.log("Database initialization complete");
+      logger.debug("Initializing database tables...");
+      const sqlFilePath = path.join(__dirname, "../database/init.sql");
+      const sql = fs.readFileSync(sqlFilePath, "utf-8");
+      await client.query(sql);
+      logger.debug("Database initialization complete");
     } else {
-      console.log("Database tables already exist");
+      logger.debug("Database tables already exist");
     }
   } catch (error) {
-    console.error("Database initialization failed:", error);
+    logger.error("Database initialization failed:", error);
     throw error;
   } finally {
     client.release();
@@ -68,5 +74,5 @@ export async function initializeDatabase(): Promise<void> {
 
 export async function closeDatabase(): Promise<void> {
   await pool.end();
-  console.log("🔌 Database connection closed");
+  logger.debug("Database connection closed");
 }
