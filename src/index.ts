@@ -8,7 +8,7 @@ import {
 import { createJobScheduler } from "./services/scheduler.js";
 import Logger from "./util/Logger.js";
 
-const logger = new Logger(); 
+const logger = new Logger();
 
 async function test() {
   const resumeJson = await readFile("src/util/resume.json", "utf-8");
@@ -21,17 +21,15 @@ async function test() {
   const automation = new JobScrapingAutomation(resumeData);
   await automation.initialize();
 
-  const initialResults = await automation.executeFullScrapingCycle();
+  const initialResults = await automation.scrapeYCJobs();
 
   logger.debug("Initial scraping results:", initialResults);
 
   await automation.cleanup();
-
 }
 
 async function main() {
   logger.debug("Starting Job Listing Scraper...");
-
   try {
     // Load resume data
     const resumeJson = await readFile("src/util/resume.json", "utf-8");
@@ -158,9 +156,7 @@ async function main() {
         );
         logger.debug("Use 'bun run src/index.ts run' to run immediately");
 
-        logger.debug(
-          "Use 'bun run src/index.ts status' to see recent results"
-        );
+        logger.debug("Use 'bun run src/index.ts status' to see recent results");
 
         // Graceful shutdown
         process.on("SIGINT", async () => {

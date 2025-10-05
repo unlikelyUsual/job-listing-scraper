@@ -4,9 +4,10 @@ import type { ResumeData } from "../database/models.js";
 import { jobRepository } from "../database/repository.js";
 import { googleJobSearcher } from "../scrapers/google-search.js";
 import { playwrightManager } from "../scrapers/playwright-manager.js";
+import { ycJobSearcher } from "../scrapers/yc-search.js";
 import { JobMatcher } from "../services/job-matcher.js";
 import Logger from "../util/Logger.js";
-import { JobParser } from "./parser.js";
+import { JobParser, type JobDetails } from "./parser.js";
 
 const logger = new Logger();
 
@@ -89,7 +90,7 @@ export class JobScrapingAutomation {
 
       // Step 3: Score and rank jobs
       logger.debug("Scoring and ranking jobs...");
-      const scoredJobs = this.jobMatcher.scoreMultipleJobs(jobDetails);
+      const scoredJobs = await this.jobMatcher.scoreMultipleJobs(jobDetails);
       const topJobs = this.jobMatcher.selectTopJobs(
         scoredJobs,
         parseInt(process.env.TOP_JOBS_COUNT || "5")
@@ -134,9 +135,95 @@ export class JobScrapingAutomation {
       logger.debug(
         `Results: ${report.totalJobs} jobs found, ${topJobs.length} top picks selected`
       );
-      logger.debug(
-        `Average score: ${(report.averageScore * 100).toFixed(1)}%`
+      logger.debug(`Average score: ${(report.averageScore * 100).toFixed(1)}%`);
+
+      return {
+        sessionId,
+        totalJobsFound: report.totalJobs,
+        topJobsSelected: topJobs.length,
+        averageScore: report.averageScore,
+      };
+    } catch (error) {
+      logger.error("Scraping cycle failed:", error);
+
+      // Update session with error
+      await jobRepository.updateSession(sessionId, {
+        status: "failed",
+        error_message: error instanceof Error ? error.message : String(error),
+        completed_at: new Date(),
+      });
+
+      throw error;
+    }
+  }
+
+  async scrapeYCJobs(): Promise<{
+    sessionId: number;
+    totalJobsFound: number;
+    topJobsSelected: number;
+    averageScore: number;
+  }> {
+    logger.debug(`Started scraping for YC Job board`);
+
+    const sessionId = await jobRepository.createSession({
+      session_date: new Date(),
+      search_queries: this.resumeData.data.roles,
+      status: "running",
+    });
+
+    try {
+      logger.debug("Searching for jobs on YC Job board...");
+
+      const searchResults: JobDetails[] = await ycJobSearcher.searchRole(
+        this.resumeData.data.roles
       );
+
+      logger.debug(`Found ${searchResults.length} job URLs from YC Job board`);
+
+      // Step 2: Scrape detailed job information
+      logger.debug("Scraping detailed job information...");
+
+      // Step 3: Score and rank jobs
+      logger.debug("Scoring and ranking jobs...");
+
+      const scoredJobs = await this.jobMatcher.scoreMultipleJobs(searchResults);
+      const topJobs = this.jobMatcher.selectTopJobs(
+        scoredJobs,
+        parseInt(process.env.TOP_JOBS_COUNT || "5")
+      );
+
+      // Step 4: Save jobs to database
+      logger.debug("Saving jobs to database...");
+
+      const jobListings = this.jobMatcher.convertMultipleToJobListings(
+        scoredJobs,
+        sessionId
+      );
+
+      await jobRepository.insertJobListings(jobListings);
+
+      // Mark top jobs
+      const topJobIds = await jobRepository.insertJobListings(topJobs);
+
+      await jobRepository.markTopPicks(topJobIds);
+
+      // Update session with results
+      await jobRepository.updateSession(sessionId, {
+        total_jobs_found: scoredJobs.length,
+        top_jobs_selected: topJobs.length,
+        status: "completed",
+        completed_at: new Date(),
+      });
+
+      // Generate report
+      const report = this.jobMatcher.generateJobReport(scoredJobs);
+
+      logger.debug("Scraping cycle completed successfully!");
+
+      logger.debug(
+        `Results: ${report.totalJobs} jobs found, ${topJobs.length} top picks selected`
+      );
+      logger.debug(`Average score: ${(report.averageScore * 100).toFixed(1)}%`);
 
       return {
         sessionId,

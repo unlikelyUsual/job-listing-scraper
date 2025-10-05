@@ -27,10 +27,9 @@ export class JobParser {
   async extractJobDetails(page: Page): Promise<JobDetails | null> {
     try {
       const url = page.url();
-      logger.debug(`🔍 Parsing job details from: ${url}`);
+      logger.debug(`Parsing job details from: ${url}`);
 
-      // Wait for page to load
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("domcontentloaded");
 
       const jobDetails = await page.evaluate(() => {
         // Common selectors for job details across different sites
@@ -138,6 +137,7 @@ export class JobParser {
       logger.debug(
         `Successfully parsed job: ${result.title} at ${result.company}`
       );
+
       return result;
     } catch (error) {
       logger.error("Failed to extract job details:", error);

@@ -111,6 +111,68 @@ export class JobRepository {
     }
   }
 
+  // Insert multiple job listings
+  async insertJobListings(jobs: Omit<JobListing, "id">[]): Promise<number[]> {
+    if (jobs.length === 0) return [];
+    const client = await pool.connect();
+    try {
+      const columns = [
+        "title",
+        "company",
+        "company_url",
+        "job_url",
+        "description",
+        "requirements",
+        "tech_stack",
+        "salary_range",
+        "location",
+        "posted_date",
+        "score",
+        "session_id",
+      ];
+      const values: any[] = [];
+      const valuePlaceholders: string[] = [];
+
+      jobs.forEach((job, i) => {
+        const offset = i * columns.length;
+        valuePlaceholders.push(
+          `(${columns.map((_, j) => `$${offset + j + 1}`).join(", ")})`
+        );
+        values.push(
+          job.title,
+          job.company,
+          job.company_url,
+          job.job_url,
+          job.description,
+          job.requirements,
+          job.tech_stack,
+          job.salary_range,
+          job.location,
+          job.posted_date,
+          job.score,
+          job.session_id
+        );
+      });
+
+      const query = `
+        INSERT INTO job_listings (${columns.join(", ")})
+        VALUES ${valuePlaceholders.join(", ")}
+        ON CONFLICT (job_url) DO UPDATE SET
+          title = EXCLUDED.title,
+          company = EXCLUDED.company,
+          description = EXCLUDED.description,
+          score = EXCLUDED.score,
+          updated_at = CURRENT_TIMESTAMP
+        RETURNING id
+      `;
+
+      const result = await client.query(query, values);
+      return result.rows.map((row) => row.id);
+    } finally {
+      client.release();
+    }
+  }
+
   // Mark jobs as top picks
   async markTopPicks(jobIds: number[]): Promise<void> {
     const client = await pool.connect();

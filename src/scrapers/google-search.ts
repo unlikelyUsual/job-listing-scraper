@@ -84,6 +84,15 @@ export class GoogleJobSearcher {
       // Navigate to Google
       await page.goto("https://www.google.com", { waitUntil: "networkidle" });
 
+      const captchaPresent = (await page.$(".g-recaptcha")) !== null;
+
+      logger.debug(`Is captcha present : ${captchaPresent}`);
+
+      if (captchaPresent) {
+        logger.debug("Captcha detected, skipping search");
+        return [];
+      }
+
       // Handle cookie consent if present
       await this.handleCookieConsent(page);
 
@@ -142,7 +151,7 @@ export class GoogleJobSearcher {
     try {
       // Wait for search results to load
       await playwrightManager.waitForSelector(page, "[data-ved]", {
-        timeout: 10000,
+        timeout: 10_000,
       });
 
       const results = await page.evaluate((site) => {

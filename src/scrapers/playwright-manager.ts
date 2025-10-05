@@ -28,7 +28,7 @@ export class PlaywrightManager {
       screenshotOnError: config.screenshotOnError ?? true,
       userAgent:
         config.userAgent ??
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36') Chrome/85.0.4183.121 Safari/537.36",
       viewport: config.viewport ?? { width: 1920, height: 1080 },
     };
   }
@@ -121,10 +121,29 @@ export class PlaywrightManager {
       page.setDefaultTimeout(30000);
       page.setDefaultNavigationTimeout(30000);
 
-      // Handle console logs
+      // Handle console logs (filter out expected resource blocking errors)
       page.on("console", (msg) => {
         if (msg.type() === "error") {
-          logger.debug(`Browser console error: ${msg.text()}`);
+          const text = msg.text();
+          // Ignore expected errors from intentionally blocked resources
+          const ignoredErrors = [
+            "Failed to load resource: net::ERR_FAILED",
+            "Failed to load resource: net::ERR_ABORTED",
+            "ERR_FAILED",
+            "ERR_ABORTED",
+          ];
+
+          const shouldIgnore = ignoredErrors.some((ignored) =>
+            text.includes(ignored)
+          );
+
+          if (!shouldIgnore) {
+            logger.debug(`Browser console error: ${text}`);
+          }
+        } else {
+          for (let i = 0; i < msg.args().length; ++i) {
+            console.log(`${i}: ${msg.args()[i]}`);
+          }
         }
       });
 
