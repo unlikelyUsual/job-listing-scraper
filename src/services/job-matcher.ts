@@ -1,7 +1,9 @@
+import crypto from "crypto";
 import type { JobListing, ResumeData } from "../database/models.js";
 import { GeminiClient } from "../llm/gemini-client.js";
 import type { JobDetails } from "../scraper/parser.js";
 import Logger from "../util/Logger.js";
+import { connectRedis, redisClient } from "../util/redis-client.js";
 
 const logger = new Logger();
 
@@ -20,11 +22,35 @@ export class JobMatcher {
   }
 
   async scoreJob(jobDetails: JobDetails): Promise<ScoredJob> {
+    // Create a hash key from resumeData and jobDetails
+    const hash = crypto
+      .createHash("sha256")
+      .update(JSON.stringify(this.resumeData) + JSON.stringify(jobDetails))
+      .digest("hex");
+    const redisKey = `gemini:score:${hash}`;
+
+    await connectRedis();
+    // Try to get from Redis
+    const cached = await redisClient.get(redisKey);
+    if (cached) {
+      const { score, matchReasons } = JSON.parse(cached);
+      return {
+        ...jobDetails,
+        score,
+        matchReasons,
+      };
+    }
+
     // Call Gemini LLM to get score and match reasons
     const { score, matchReasons } = await this.gemini.scoreJob(
       this.resumeData,
       jobDetails
     );
+
+    // Cache result in Redis (set TTL to 7 days)
+    await redisClient.set(redisKey, JSON.stringify({ score, matchReasons }), {
+      EX: 60 * 60 * 24 * 7,
+    });
 
     return {
       ...jobDetails,

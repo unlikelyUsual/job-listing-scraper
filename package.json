@@ -16,9 +16,10 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "playwright": "latest",
-    "pg": "^8.11.3",
+    "dotenv": "^16.3.1",
     "node-cron": "^3.0.3",
-    "dotenv": "^16.3.1"
+    "pg": "^8.11.3",
+    "playwright": "latest",
+    "redis": "^5.8.3"
   }
 }
